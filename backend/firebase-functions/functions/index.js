@@ -66,7 +66,25 @@ app.get('/screams', (req, res) => {
 
 
 // Signup route
-app.post('/signup')
+app.post('/signup', (req, res) => {
+  const newUser = {
+    email: req.body.email,
+    password: req.body.password,
+    confirmPassword: req.body.confirmPassword,
+    handle: req.body.handle
+  }
+  // TODO validate data
+
+  firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+  .then(data => {
+    return res.status(201).json({ message: `user ${data.user.id} signup successfully` })
+
+  })
+  .catch(err => {
+    console.error(err)
+    return res.status(500).json({ error: err.code })
+  })
+})
 
 
 exports.api = functions.region('us-central1').https.onRequest(app)
