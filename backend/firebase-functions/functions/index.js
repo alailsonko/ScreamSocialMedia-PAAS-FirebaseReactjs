@@ -77,7 +77,7 @@ app.post('/signup', (req, res) => {
 
   firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
   .then(data => {
-    return res.status(201).json({ message: `user ${data.user.id} signup successfully` })
+    return res.status(201).json({ message: `user ${data.user.uid} signup successfully` })
 
   })
   .catch(err => {
