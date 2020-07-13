@@ -22,12 +22,7 @@ app.get('/screams', (req, res) => {
 
  
 
- 
-
-exports.createScreams = functions.https.onRequest((req, res) => {
-   if(req.method !== 'POST') {
-     return res.status(400).json({ error: 'method not allowed' })
-   }
+ app.post('/scream', (req, res) => {
   const newScream = {
     body: req.body.body,
     userHandle: req.body.userHandle,
@@ -44,7 +39,9 @@ exports.createScreams = functions.https.onRequest((req, res) => {
     res.status(500).json({ error: 'something went wrong' })
     console.error(err)
   })
-})
+ })
+
+ 
 
 // https://baseurl.com/api/<something>
 
