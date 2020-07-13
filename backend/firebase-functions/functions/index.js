@@ -2,20 +2,11 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin')
 const firebase = require('firebase')
 const app = require('express')()
- 
+var firebaseConfig = require('./firebaseConfig')
 
 admin.initializeApp()
 
-var firebaseConfig = {
-  apiKey: "AIzaSyAcTWzC7__R3t2rtoifcqN4fDBz-z5VFDI",
-  authDomain: "mansion-4fa4a.firebaseapp.com",
-  databaseURL: "https://mansion-4fa4a.firebaseio.com",
-  projectId: "mansion-4fa4a",
-  storageBucket: "mansion-4fa4a.appspot.com",
-  messagingSenderId: "396090854471",
-  appId: "1:396090854471:web:d2a51eff6313f0e5fd3562",
-  measurementId: "G-XHBMDZGRT7"
-};
+ 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
