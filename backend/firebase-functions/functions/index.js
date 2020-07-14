@@ -1,60 +1,43 @@
 const functions = require('firebase-functions');
-const admin = require('firebase-admin')
 const firebase = require('firebase')
 const app = require('express')()
 var firebaseConfig = require('./firebaseConfig')
-
-admin.initializeApp()
-
+const { getAllScreams, postOneScream } = require('./handlers/screams')
  
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig.firebaseConfig);
 
-const db = admin.firestore()
 
-app.get('/screams', (req, res) => {
-  db
-  .collection('screams')
-  .orderBy('createdAt', 'desc')
-  .get()
-  .then(data => {
-    let screams = []
-    data.forEach(doc => {
-      screams.push({
-        screamId: doc.id,
-        body: doc.data().body,
-        userHandle: doc.data().userHandle,
-        createdAt: doc.data().createdAt,
-        commentCount: doc.data().commentCount,
-        likeCount: doc.data().likeCount
-      })
-    })
-    return res.json(screams)
-  })
-  .catch((err) => console.error(err))
-})
+// scream routes
+app.get('/screams', getAllScreams)
+app.post('/scream', FBAuth, postOneScream)
 
- 
-
- app.post('/scream', (req, res) => {
-  const newScream = {
-    
-    "body": req.body.body,
-    "userHandle": req.body.userHandle,
-    "createdAt": new Date().toISOString()
+const FBAuth = (req, res, next) => {
+  let idToken;
+  if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')){
+     idToken = req.headers.authorization.split('Bearer ')[1]    
+  } else {
+    console.error('No token found')
+    return res.status(403).json({ error: 'Unauthorized' })
   }
-
-  db
-  .collection('screams')
-  .add(newScream)
-  .then((doc) => {
-   return res.json({"message": `document ${doc.id} created successfully`})
+  admin.auth().verifyIdToken(idToken)
+  .then(decodedToken => {
+    req.user = decodedToken;
+    return db.collection('screams')
+      .where('userId', '==', req.user.uid)
+      .limit(1)
+      .get()
   })
-  .catch(err => {
-    res.status(500).json({ "error": "something went wrong" })
-    console.error(err)
-  })
- })
+   .then(data => {
+     req.user.handle = data.docs[0].data().handle;
+     return next();
+   })
+   .catch(err => {
+     console.error('Error while verifying token', err)
+     return res.status(403).json(err)
+   })
+}
+ 
 
  const isEmail = (email) => {
    const regEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -138,7 +121,8 @@ app.post('/signup', (req, res) => {
  
 })
 
-featapp.post('/login', (req, res) => {
+// login user
+  app.post('/login', (req, res) => {
   const user = {
     email: req.body.email,
     password: req.body.password
