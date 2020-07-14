@@ -3,6 +3,8 @@ const firebase = require('firebase')
 var firebaseConfig = require('../firebaseConfig')
 
 firebase.initializeApp(firebaseConfig.firebaseConfig)
+
+// signup middleware
 exports.signup = (req, res) => {
   const newUser = {
     email: req.body.email,
@@ -68,6 +70,8 @@ exports.signup = (req, res) => {
  
 }
 
+
+// login middleware
 exports.login = (req, res) => {
   const user = {
     email: req.body.email,
